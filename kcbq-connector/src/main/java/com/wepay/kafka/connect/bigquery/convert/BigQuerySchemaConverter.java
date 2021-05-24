@@ -22,14 +22,11 @@ package com.wepay.kafka.connect.bigquery.convert;
 import com.google.cloud.bigquery.FieldList;
 import com.google.cloud.bigquery.LegacySQLTypeName;
 
-import com.wepay.kafka.connect.bigquery.convert.logicaltype.DebeziumLogicalConverters;
-import com.wepay.kafka.connect.bigquery.convert.logicaltype.KafkaLogicalConverters;
 import com.wepay.kafka.connect.bigquery.convert.logicaltype.LogicalConverterRegistry;
 import com.wepay.kafka.connect.bigquery.convert.logicaltype.LogicalTypeConverter;
 import com.wepay.kafka.connect.bigquery.exception.ConversionConnectException;
 
 import org.apache.kafka.connect.data.Schema;
-import org.apache.kafka.connect.data.Schema.Type;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -58,10 +55,6 @@ public class BigQuerySchemaConverter implements SchemaConverter<com.google.cloud
   private static final Map<Schema.Type, LegacySQLTypeName> PRIMITIVE_TYPE_MAP;
 
   static {
-    // force registration
-    new DebeziumLogicalConverters();
-    new KafkaLogicalConverters();
-
     PRIMITIVE_TYPE_MAP = new HashMap<>();
     PRIMITIVE_TYPE_MAP.put(Schema.Type.BOOLEAN,
                            LegacySQLTypeName.BOOLEAN);

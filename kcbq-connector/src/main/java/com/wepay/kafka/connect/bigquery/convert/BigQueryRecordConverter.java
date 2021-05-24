@@ -21,8 +21,6 @@ package com.wepay.kafka.connect.bigquery.convert;
 
 import com.google.cloud.bigquery.InsertAllRequest.RowToInsert;
 import com.wepay.kafka.connect.bigquery.api.KafkaSchemaRecordType;
-import com.wepay.kafka.connect.bigquery.convert.logicaltype.DebeziumLogicalConverters;
-import com.wepay.kafka.connect.bigquery.convert.logicaltype.KafkaLogicalConverters;
 import com.wepay.kafka.connect.bigquery.convert.logicaltype.LogicalConverterRegistry;
 import com.wepay.kafka.connect.bigquery.convert.logicaltype.LogicalTypeConverter;
 import com.wepay.kafka.connect.bigquery.exception.ConversionConnectException;
@@ -54,12 +52,6 @@ public class BigQueryRecordConverter implements RecordConverter<Map<String, Obje
                   Integer.class, Long.class, Float.class, Double.class, String.class)
           );
   private final boolean shouldConvertSpecialDouble;
-
-  static {
-    // force registration
-    new DebeziumLogicalConverters();
-    new KafkaLogicalConverters();
-  }
 
   public BigQueryRecordConverter(boolean shouldConvertDoubleSpecial) {
     this.shouldConvertSpecialDouble = shouldConvertDoubleSpecial;

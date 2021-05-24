@@ -33,12 +33,6 @@ import java.math.BigDecimal;
  */
 public class KafkaLogicalConverters {
 
-  static {
-    LogicalConverterRegistry.register(Date.LOGICAL_NAME, new DateConverter());
-    LogicalConverterRegistry.register(Decimal.LOGICAL_NAME, new DecimalConverter());
-    LogicalConverterRegistry.register(Timestamp.LOGICAL_NAME, new TimestampConverter());
-  }
-
   /**
    * Class for converting Kafka date logical types to Bigquery dates.
    */
@@ -66,9 +60,11 @@ public class KafkaLogicalConverters {
      * Create a new DecimalConverter.
      */
     public DecimalConverter() {
-      super(Decimal.LOGICAL_NAME,
-            Schema.Type.BYTES,
-            LegacySQLTypeName.FLOAT);
+      this(LegacySQLTypeName.FLOAT);
+    }
+
+    public DecimalConverter(LegacySQLTypeName legacySQLTypeName) {
+      super(Decimal.LOGICAL_NAME, Schema.Type.BYTES, legacySQLTypeName);
     }
 
     @Override

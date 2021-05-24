@@ -23,14 +23,24 @@ import com.google.cloud.bigquery.BigQuery;
 import com.wepay.kafka.connect.bigquery.config.BigQuerySinkConfig;
 
 import com.wepay.kafka.connect.bigquery.config.BigQuerySinkTaskConfig;
+import com.wepay.kafka.connect.bigquery.convert.logicaltype.DebeziumLogicalConverters;
+import com.wepay.kafka.connect.bigquery.convert.logicaltype.KafkaLogicalConverters;
+import com.wepay.kafka.connect.bigquery.convert.logicaltype.LogicalConverterRegistry;
 import com.wepay.kafka.connect.bigquery.exception.SinkConfigConnectException;
 
 import com.wepay.kafka.connect.bigquery.utils.Version;
 
+import io.debezium.time.MicroTime;
+import io.debezium.time.MicroTimestamp;
+import io.debezium.time.Time;
+import io.debezium.time.ZonedTimestamp;
 import org.apache.kafka.common.config.ConfigDef;
 import org.apache.kafka.common.config.ConfigException;
 
 import org.apache.kafka.connect.connector.Task;
+import org.apache.kafka.connect.data.Date;
+import org.apache.kafka.connect.data.Decimal;
+import org.apache.kafka.connect.data.Timestamp;
 import org.apache.kafka.connect.sink.SinkConnector;
 
 import org.slf4j.Logger;
@@ -85,12 +95,25 @@ public class BigQuerySinkConnector extends SinkConnector {
     try {
       configProperties = properties;
       config = new BigQuerySinkConfig(properties);
+      registerConverters();
     } catch (ConfigException err) {
       throw new SinkConfigConnectException(
           "Couldn't start BigQuerySinkConnector due to configuration error",
           err
       );
     }
+  }
+
+  private void registerConverters() {
+    LogicalConverterRegistry.register(Date.LOGICAL_NAME, new KafkaLogicalConverters.DateConverter());
+    LogicalConverterRegistry.register(Decimal.LOGICAL_NAME, new KafkaLogicalConverters.DecimalConverter(config.getBiqQueryDecimalType()));
+    LogicalConverterRegistry.register(Timestamp.LOGICAL_NAME, new KafkaLogicalConverters.TimestampConverter());
+
+    LogicalConverterRegistry.register(io.debezium.time.Date.SCHEMA_NAME, new DebeziumLogicalConverters.DateConverter());
+    LogicalConverterRegistry.register(MicroTime.SCHEMA_NAME, new DebeziumLogicalConverters.MicroTimeConverter());
+    LogicalConverterRegistry.register(MicroTimestamp.SCHEMA_NAME, new DebeziumLogicalConverters.MicroTimestampConverter());
+    LogicalConverterRegistry.register(Time.SCHEMA_NAME, new DebeziumLogicalConverters.TimeConverter());
+    LogicalConverterRegistry.register(ZonedTimestamp.SCHEMA_NAME, new DebeziumLogicalConverters.ZonedTimestampConverter());
   }
 
   @Override

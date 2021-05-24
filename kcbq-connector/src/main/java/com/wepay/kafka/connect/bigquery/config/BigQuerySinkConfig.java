@@ -19,6 +19,7 @@
 
 package com.wepay.kafka.connect.bigquery.config;
 
+import com.google.cloud.bigquery.LegacySQLTypeName;
 import com.google.cloud.bigquery.Schema;
 
 import com.google.cloud.bigquery.TimePartitioning;
@@ -42,16 +43,9 @@ import org.slf4j.LoggerFactory;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -311,6 +305,17 @@ public class BigQuerySinkConfig extends AbstractConfig {
       "The time partitioning type to use when creating tables. "
           + "Existing tables will not be altered to use this partitioning type."; 
 
+  public static final String BIQQUERY_DECIMAL_TYPE_CONFIG = "biqQueryDecimalType";
+  private static final ConfigDef.Type BIQQUERY_DECIMAL_TYPE_TYPE = ConfigDef.Type.STRING;
+  public static final String BIQQUERY_DECIMAL_TYPE_DEFAULT = LegacySQLTypeName.FLOAT.name().toUpperCase();
+  private static final ConfigDef.Importance BIQQUERY_DECIMAL_TYPE_IMPORTANCE = ConfigDef.Importance.LOW;
+  private static final List<String> BIQQUERY_DECIMAL_TYPE_TYPES = Arrays.asList(
+          LegacySQLTypeName.FLOAT.name().toUpperCase(),
+          LegacySQLTypeName.NUMERIC.name().toUpperCase(),
+          LegacySQLTypeName.STRING.name().toUpperCase()
+  );
+  private static final String BIQQUERY_DECIMAL_TYPE_DOC = "The big query table column datatype that will be used for BigDecimal";
+
   /**
    * Return a ConfigDef object used to define this config's fields.
    *
@@ -521,6 +526,13 @@ public class BigQuerySinkConfig extends AbstractConfig {
                 return true;
               }
             }
+        ).define(
+            BIQQUERY_DECIMAL_TYPE_CONFIG,
+            BIQQUERY_DECIMAL_TYPE_TYPE,
+            BIQQUERY_DECIMAL_TYPE_DEFAULT,
+            ConfigDef.CaseInsensitiveValidString.in(BIQQUERY_DECIMAL_TYPE_TYPES.toArray(new String[0])),
+            BIQQUERY_DECIMAL_TYPE_IMPORTANCE,
+            BIQQUERY_DECIMAL_TYPE_DOC
         );
   }
 
@@ -704,6 +716,10 @@ public class BigQuerySinkConfig extends AbstractConfig {
 
   public TimePartitioning.Type getTimePartitioningType() {
     return parseTimePartitioningType(getString(TIME_PARTITIONING_TYPE_CONFIG));
+  }
+
+  public LegacySQLTypeName getBiqQueryDecimalType() {
+    return LegacySQLTypeName.valueOfStrict(getString(BIQQUERY_DECIMAL_TYPE_CONFIG).toUpperCase());
   }
 
   private TimePartitioning.Type parseTimePartitioningType(String rawPartitioningType) {

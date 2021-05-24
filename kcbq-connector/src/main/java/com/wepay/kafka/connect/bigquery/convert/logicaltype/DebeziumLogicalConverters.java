@@ -41,14 +41,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class DebeziumLogicalConverters {
 
-  static {
-    LogicalConverterRegistry.register(Date.SCHEMA_NAME, new DateConverter());
-    LogicalConverterRegistry.register(MicroTime.SCHEMA_NAME, new MicroTimeConverter());
-    LogicalConverterRegistry.register(MicroTimestamp.SCHEMA_NAME, new MicroTimestampConverter());
-    LogicalConverterRegistry.register(Time.SCHEMA_NAME, new TimeConverter());
-    LogicalConverterRegistry.register(ZonedTimestamp.SCHEMA_NAME, new ZonedTimestampConverter());
-  }
-
   private static final int MICROS_IN_SEC = 1000000;
   private static final int MICROS_IN_MILLI = 1000;
 
